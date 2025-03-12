@@ -1,0 +1,54 @@
+name: Multi-Node Blockchain Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-multi-node:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛎️ Checkout repository
+        uses: actions/checkout@v3
+
+      - name: 🦀 Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: 🚀 Build project
+        run: cargo build --verbose
+
+      - name: 🏗️ Start Node 1 (Port 6000)
+        run: |
+          NODE_PORT=6000 PEER_PORT=6001 cargo run & 
+          sleep 5  # Give it time to start
+
+      - name: 🏗️ Start Node 2 (Port 6001)
+        run: |
+          NODE_PORT=6001 PEER_PORT=6000 cargo run & 
+          sleep 5  # Allow nodes to sync
+
+      - name: 🔍 Test Node Connectivity
+        run: |
+          if ! nc -zv 127.0.0.1 6000; then echo "Node 1 did not start properly"; exit 1; fi
+          if ! nc -zv 127.0.0.1 6001; then echo "Node 2 did not start properly"; exit 1; fi
+          echo "✅ Both nodes are running"
+
+      - name: 📡 Check Blockchain Sync
+        run: |
+          curl -s http://127.0.0.1:6000/blocks > node1_blocks.json
+          curl -s http://127.0.0.1:6001/blocks > node2_blocks.json
+          
+          if cmp -s node1_blocks.json node2_blocks.json; then
+            echo "✅ Blockchain synchronized successfully!"
+          else
+            echo "❌ Blockchain mismatch! Check logs."
+            exit 1
+          fi
+
+      - name: ✅ Cleanup
+        run: pkill -f "cargo run" || true
