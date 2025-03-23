@@ -18,11 +18,14 @@ jobs:
       - name: Start blockchain nodes with Docker Compose
         run: |
           docker-compose up --build -d
-          sleep 5  # Wait for the nodes to start
+          echo "Waiting for blockchain nodes to start..."
+          sleep 20  # Increased wait time to allow blocks to be mined
 
       - name: Check logs for mined block
         run: |
-          sleep 5  # Allow time for block mining
+          echo "Waiting extra time for block generation..."
+          sleep 10  # Extra delay before checking logs
+          
           docker logs node1 > node1.log
           docker logs node2 > node2.log
 
@@ -36,6 +39,6 @@ jobs:
             echo "✅ Blockchain test passed!"
             exit 0
           else
-            echo "❌ Blockchain test failed!"
+            echo "❌ Blockchain test failed! Blocks were not mined in time."
             exit 1
           fi
