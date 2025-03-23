@@ -10,14 +10,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      - name: Start blockchain nodes with Docker Compose
         run: |
           docker-compose up --build -d
-          sleep 5  # Give containers time to start
+          sleep 5  # Wait for the nodes to start
 
       - name: Check logs for mined block
         run: |
-          sleep 5  # Allow more time for block mining
+          sleep 5  # Allow time for block mining
           docker logs node1 > node1.log
           docker logs node2 > node2.log
 
@@ -28,9 +33,9 @@ jobs:
           cat node2.log
 
           if grep -q "New block mined" node1.log && grep -q "New block mined" node2.log; then
-            echo "Blockchain test passed!"
+            echo "✅ Blockchain test passed!"
             exit 0
           else
-            echo "Blockchain test failed!"
+            echo "❌ Blockchain test failed!"
             exit 1
           fi
