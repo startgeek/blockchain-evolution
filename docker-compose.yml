@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  node1:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: node1
+    environment:
+      NODE_PORT: 6000
+      PEER_PORT: 6001
+      PEER_HOST: "node2"
+    ports:
+      - "6000:6000"
+    networks:
+      - blockchain_net
+
+  node2:
+    build:
+      context: .
+      dockerfile: Dockerfile.Peer
+    container_name: node2
+    environment:
+      NODE_PORT: 6001
+      PEER_PORT: 6000
+      PEER_HOST: "node1"
+    ports:
+      - "6001:6001"
+    networks:
+      - blockchain_net
+    depends_on:
+      - node1
+
+networks:
+  blockchain_net:
+        driver: bridge  # Explicitly define the bridge network
