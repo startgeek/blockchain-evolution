@@ -1,10 +1,13 @@
 [package]
-name = "blockchain-evolution"
+name = "eth-rust-pow"
 version = "0.1.0"
 edition = "2021"
+authors = ["madi sheriff enginestart2@gmail.com"]
+description = "An educational implementation of Ethereum PoW in Rust"
 
 [dependencies]
-sha2 = "0.10"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-md5 = "0.7.0"
+# For now, we're keeping dependencies minimal for the first build
+# We'll add more as we implement additional components
+
+[dev-dependencies]
+# Test dependencies
