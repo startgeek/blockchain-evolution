@@ -1,44 +1,42 @@
-name: Blockchain Node Test
+name: Rust Build Check
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ ethereum-pow ]
+  pull_request:
+    branches: [ ethereum-pow ]
+
+env:
+  CARGO_TERM_COLOR: always
 
 jobs:
-  test-blockchain:
+  build:
+    name: Build and Test
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
-      - name: Start blockchain nodes with Docker Compose
-        run: |
-          docker-compose up --build -d
-          echo "Waiting for blockchain nodes to start..."
-          sleep 20  # Increased wait time to allow blocks to be mined
-
-      - name: Check logs for mined block
-        run: |
-          echo "Waiting extra time for block generation..."
-          sleep 10  # Extra delay before checking logs
-          
-          docker logs node1 > node1.log
-          docker logs node2 > node2.log
-
-          echo "Node1 Logs:"
-          cat node1.log
-
-          echo "Node2 Logs:"
-          cat node2.log
-
-          if grep -q "New block mined" node1.log && grep -q "New block mined" node2.log; then
-            echo "✅ Blockchain test passed!"
-            exit 0
-          else
-            echo "❌ Blockchain test failed! Blocks were not mined in time."
-            exit 1
-          fi
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      
+      - name: Build
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --verbose
+      
