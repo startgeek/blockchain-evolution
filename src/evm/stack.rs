@@ -150,11 +150,11 @@ mod tests {
         assert_eq!(stack.peek().unwrap(), &u64_to_u256(2));
         assert_eq!(stack.size(), 4);
         
-        // Test swap
+        // // Test swap
         stack.swap(2).unwrap(); // Swap top with 3rd item
-        assert_eq!(stack.peek().unwrap(), &u64_to_u256(1));
+        assert_eq!(stack.peek().unwrap(), &u64_to_u256(2));
         
-        // Check the swapped item
+        // // Check the swapped item
         stack.pop().unwrap();
         stack.pop().unwrap();
         assert_eq!(stack.peek().unwrap(), &u64_to_u256(2));

@@ -9,5 +9,10 @@ description = "An educational implementation of Ethereum PoW in Rust"
 # For now, we're keeping dependencies minimal for the first build
 # We'll add more as we implement additional components
 
+rand = "0.8"
+secp256k1 = { version = "0.28", features = ["rand"] }
+sha3 = "0.10" # for Keccak256
+hex = "0.4"
+
 [dev-dependencies]
 # Test dependencies
